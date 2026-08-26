@@ -113,6 +113,14 @@ DBPassword=password
 
 <br>
 
+### Ativar modulos do apache2 necessarios
+
+```
+a2enmod proxy ; a2enmod proxy_fcgi 
+```
+
+<br>
+
 ### Comecar os servicos necessarios e adicina-los ao startup
 
 <br>
