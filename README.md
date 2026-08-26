@@ -133,18 +133,58 @@ Apos o web setup o user e a password default sao respetivamente "Admin" e "zabbi
 
 <br>
 
+### Erro MySQL
+
+<br>
+
 > ERROR 2002 (HY000): Can't connect to local MySQL server through socket '/var/run/mysqld/mysqld.sock' (2)
 {.is-danger}
 
 Para corrigir este erro apenas necessitamos de instalar o package do mysql-server:
 
-<br>
 
 ```
 apt install mysql-server
 ```
+<br>
 
-</br>
+### Erro Apache2
+
+<br>
+
+> Job for apache2.service failed because the control process exited with error code.
+{.is-danger}
+
+<br>
+
+Para corrigir este erro precisamos de perceber qual e a causa do apache nao ligar:
+
+```
+systemctl status apache2
+```
+
+No meu caso foi possivel verificar que ja existia outra aplicacao a correr na porta 80:
+
+> apachectl[17070]: (98)Address already in use: AH00072: make_sock: could not bind to address [::]:80
+{.is-danger}
+
+<br>
+
+De seguida tentei perceber o que estava a correr na porta 80:
+
+```
+sudo lsof -i : 80
+```
+
+<br>
+
+Verifiquei que era o caddy que estava a causar conflito com o apache na porta 80, entao removi o caddy:
+
+```
+apt purge caddy
+```
+
+<br>
 
 ## Conclusao
 
