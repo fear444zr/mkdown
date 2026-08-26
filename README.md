@@ -1,201 +1,189 @@
-## Introducao
+# Introducao
 
 <br>
 
-Este guia tem como objetivo auxiliar o operador a instalar o zabbix num servidor ubuntu.
+## O que e o EspoCRM?
+
+O EspoCRM e uma webapp que permute que utilizadores, entrem e avaliem todas as conexoes da empresa de tipos diferentes e tambem funciona como um gestor de pessoas onde se podem atribuir tarefas e gerir o calendario apenas em uma plataforma.
 
 <br>
 
-## Corpo
+## Documentacao
+
+Este guia tem como objetivo auxiliar o operador a instalar o EspoCRM num servidor ubuntu. O EspoCRM e um CRM (Customer Relationship Manager) opensource 
+
+# Corpo
 
 <br>
 
-### Trocar para root user
-<br>
-
-Antes de fazer alguma alteracao queremos passar para root user:
-
-```
-sudo -s 
-```
-<br>
-
-### Instalar a diretoria do Zabbix
+## Downloads necessarios
 
 <br>
 
-Vamos aceder ao site do download do [Zabbix](https://www.zabbix.com/download?)
-
-Dentro deste site vamos selecionar os parametros necessarios conforme o servidor onde vamos instalar e vamos copiar o link de download. Esta documentacao tem foco na versao de ubuntu do zabbix.
-
-<br>
-
-> Exemplo: "wget https://repo.zabbix.com/zabbix/7.4/release/ubuntu/pool/main/z/zabbix-release/zabbix-release_latest_7.4+ubuntu26.04_all.deb"
-
-<br>
-
-Depois de fazer o download vamos adicionar o repositorio do Zabbix e atualizar
-
-```
-dpkg -i <zabbix_package>
-apt update
-```
-
-<br>
-
-### Instalar o Zabbix server, agent e frontend
+Vamos precisar das seguintes packages:
 
 <br>
 
 ```
-apt install zabbix-server-mysql zabbix-frontend-php zabbix-apache-conf zabbix-sql-scripts zabbix-agent
+apt install mysql-server apache2 unzip
 ```
 
 <br>
 
-### Criar a DB
+## Download do EspoCRM
+<br>
+
+Depois vamos aceder ao site do download do [EspoCRM](https://www.espocrm.com/)
+
+Dentro do site vamos fazer download do ZIP do EspoCRM
+
+<br>
+
+## Enviar o ZIP para o servidor 
+
+<br>
+
+O ZIP pode ser enviado por SFTP (o SFTP vem default por SSH)
+
+> Nota: Teremos que mudar o "ficheiro.zip" pelo nome do ficheiro que fizemos download
+{.is-info}
+
+<br>
+
+```
+sftp user@servidor
+put ficheiro.zip
+```
+
+<br>
+
+## Rename do ficheiro, mover para a pasta do apache2 e extrair
+
+<br>
+
+> Nota: Teremos que mudar o "ficheiro.zip" pelo nome do ficheiro que fizemos upload para o servidor
+{.is-info}
+
+
+<br>
+
+```
+mv ficheiro.zip espocrm.zip
+mv espocrm.zip /var/www/html'
+cd /var/www/html
+unzip espocrm.zip
+```
+
+<br>
+
+Depois de extrair o ficheiro podemos remover o unzip
+
+<br>
+
+```
+apt purge unzip
+```
+
+## Criar uma DB para o EspoCRM
 
 <br>
 
 ```
 mysql -uroot -p
 ```
+
 <br>
 
-> Os proximos comandos serao feitos dentro do MySQL
+> Nota: Teremos que mudar a "password" pela password correta
 {.is-info}
 
 <br>
 
 ```
-create database zabbix character set utf8mb4 collate utf8mb4_bin;
-create user zabbix@localhost identified by 'password';
-grant all privileges on zabbix.* to zabbix@localhost;
-set global log_bin_trust_function_creators = 1;
+create database espocrm character set utf8mb4 collate utf8mb4_bin;
+create user espocrm@localhost identified by 'password';
+grant all privileges on espocrm.* to espocrm@localhost;
 quit;
 ```
 
 <br>
 
-###  Importar dados e esquema inicial do Zabbix
+## Configurar o Apache2 para o EspoCRM
 
 <br>
 
-> Este comando pode demorar alguns minutos:
+Vamos ter que ativar o mod_rewrite para o apache2
+
+<br>
+
+```
+sudo a2enmod rewrite
+```
+
+<br>
+
+Depois vamos ao ficheiro de config do apache2
+
+<br>
+
+```
+nano /etc/apache2/apache2.conf
+```
+
+<br>
+
+E vamos adicionar a seguinte config:
+
+<br>
+
+```
+DocumentRoot /var/www/html/espocrm/public
+Alias /client/ /var/www/html/espocrm/client
+
+<Directory /var/www/html/espocrm>
+  AllowOverride All
+</Directory>
+```
+
+<br>
+
+Depois vamos dar restart ao apache2
+
+<br>
+
+```
+sudo systemctl restart apache2
+```
+
+<br>
+
+> Caso exista o seguinte erro: "Permission denied for "data" ..." vamos inserir os comandos a baixo, caso nao apareca podemos continuar
+{.is-danger}
+
+<br>
+
+```
+cd /var/www/html/espocrm
+sudo find data -type d -exec sudo chmod 775 {} + && sudo chown -R 33:33 .;
+sudo systemctl restart apache2
+```
+
+<br>
+
+## Aceder ao Espocrm web install
+
+<br>
+
+> Nota: Teremos que trocar "host" pelo ip/hostname do servidor
 {.is-info}
 
 
-```
-zcat /usr/share/zabbix/sql-scripts/mysql/server.sql.gz | mysql --default-character-set=utf8mb4 -uzabbix -p zabbix 
-```
+Agora que o espocrm ja esta corretamente instalado no servidor, podemos aceder ao web install em "https://host/espocrm"
 
 <br>
 
-### Desativar o log_bin_trust_function_creators
+# Conclusao
 
 <br>
 
-```
-mysql -uroot -p
-set global log_bin_trust_function_creators = 0;
-quit; 
-```
-
-<br>
-
-### Adicionar password a DB do Zabbix
-
-<br>
-
-```
-DBPassword=password
-```
-
-<br>
-
-### Ativar modulos do apache2 necessarios
-
-```
-a2enmod proxy ; a2enmod proxy_fcgi 
-```
-
-<br>
-
-### Comecar os servicos necessarios e adicina-los ao startup
-
-<br>
-
-```
-systemctl restart zabbix-server zabbix-agent apache2 php8.5-fpm
-systemctl enable zabbix-server zabbix-agent apache2 php8.5-fpm 
-```
-
-### Abrir o Zabbix no web browser
-
-<br>
-
-O URL default do Zabbix apos a configuracao inicial e o http://host/zabbix 
-Apos o web setup o user e a password default sao respetivamente "Admin" e "zabbix"
-
-## Troubleshoot
-
-<br>
-
-### Erro MySQL
-
-<br>
-
-> ERROR 2002 (HY000): Can't connect to local MySQL server through socket '/var/run/mysqld/mysqld.sock' (2)
-{.is-danger}
-
-Para corrigir este erro apenas necessitamos de instalar o package do mysql-server:
-
-
-```
-apt install mysql-server
-```
-<br>
-
-### Erro Apache2
-
-<br>
-
-> Job for apache2.service failed because the control process exited with error code.
-{.is-danger}
-
-<br>
-
-Para corrigir este erro precisamos de perceber qual e a causa do apache nao ligar:
-
-```
-systemctl status apache2
-```
-
-No meu caso foi possivel verificar que ja existia outra aplicacao a correr na porta 80:
-
-> apachectl[17070]: (98)Address already in use: AH00072: make_sock: could not bind to address [::]:80
-{.is-danger}
-
-<br>
-
-De seguida tentei perceber o que estava a correr na porta 80:
-
-```
-sudo lsof -i : 80
-```
-
-<br>
-
-Verifiquei que era o caddy que estava a causar conflito com o apache na porta 80, entao removi o caddy:
-
-```
-apt purge caddy
-```
-
-<br>
-
-## Conclusao
-
-<br>
-
-Apos seguir todos os passos deste guia o operador devera ter instalado com sucesso o zabbix num servidor ubuntu, pode continuar a configuracao na seguinte pagina: [Configuracao do Zabbix](http://192.168.1.10:3100/en/CZabbix)
+Apos seguir todos os passos deste guia o operador devera ter instalado com sucesso o EspoCRM no servidor e pode continuar a configuracao na seguinte pagina: [Configuracao do EspoCRM](http://192.168.1.10:3100/en/CEspoCRM)
