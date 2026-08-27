@@ -6,8 +6,6 @@
 
 O EspoCRM e uma webapp que permute que utilizadores, entrem e avaliem todas as conexoes da empresa de tipos diferentes e tambem funciona como um gestor de pessoas onde se podem atribuir tarefas e gerir o calendario apenas em uma plataforma.
 
-<br>
-
 ## Documentacao
 
 Este guia tem como objetivo auxiliar o operador a instalar o EspoCRM num servidor ubuntu. O EspoCRM e um CRM (Customer Relationship Manager) opensource 
@@ -41,18 +39,19 @@ Dentro do site vamos fazer download do ZIP do EspoCRM
 
 ## Enviar o ZIP para o servidor 
 
-<br>
-
 O ZIP pode ser enviado por SFTP (o SFTP vem default por SSH)
 
-> Nota: Teremos que mudar o "ficheiro.zip" pelo nome do ficheiro que fizemos download
+<br>
+
+> Nota: Teremos que nos dirigir a diretoria onde esta o ficheiro pelo CMD/Terminal **ANTES** de fazer o SFTP
 {.is-info}
 
 <br>
 
 ```
+cd </diretoria/do/ficheiro>
 sftp user@servidor
-put ficheiro.zip
+put <ficheiro.zip>
 ```
 
 <br>
@@ -64,11 +63,8 @@ put ficheiro.zip
 > Nota: Teremos que mudar o "ficheiro.zip" pelo nome do ficheiro que fizemos upload para o servidor
 {.is-info}
 
-
-<br>
-
 ```
-mv ficheiro.zip espocrm.zip
+mv <ficheiro.zip> espocrm.zip
 mv espocrm.zip /var/www/html'
 cd /var/www/html
 unzip espocrm.zip
