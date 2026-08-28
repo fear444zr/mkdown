@@ -1,35 +1,34 @@
-# Introducao
+## Introducao
 
 <br>
 
-## O que e o EspoCRM?
+### O que e o EspoCRM?
 
 O EspoCRM e uma webapp que permute que utilizadores, entrem e avaliem todas as conexoes da empresa de tipos diferentes e tambem funciona como um gestor de pessoas onde se podem atribuir tarefas e gerir o calendario apenas em uma plataforma.
 
-## Documentacao
+<br>
+
+### Documentacao
 
 Este guia tem como objetivo auxiliar o operador a instalar o EspoCRM num servidor ubuntu. O EspoCRM e um CRM (Customer Relationship Manager) opensource 
 
-# Corpo
+<br>
+
+## Corpo
 
 <br>
 
-## Downloads necessarios
-
-<br>
+### Downloads necessarios
 
 Vamos precisar das seguintes packages:
 
-<br>
-
 ```
-apt install mysql-server apache2 unzip
+apt install mysql-server apache2 unzip php
 ```
 
 <br>
 
-## Download do EspoCRM
-<br>
+### Download do EspoCRM
 
 Depois vamos aceder ao site do download do [EspoCRM](https://www.espocrm.com/)
 
@@ -37,7 +36,7 @@ Dentro do site vamos fazer download do ZIP do EspoCRM
 
 <br>
 
-## Enviar o ZIP para o servidor 
+### Enviar o ZIP para o servidor 
 
 O ZIP pode ser enviado por SFTP (o SFTP vem default por SSH)
 
@@ -56,7 +55,7 @@ put <ficheiro.zip>
 
 <br>
 
-## Rename do ficheiro, mover para a pasta do apache2 e extrair
+### Rename do ficheiro, mover para a pasta do apache2 e extrair
 
 <br>
 
@@ -70,8 +69,6 @@ cd /var/www/html
 unzip espocrm.zip
 ```
 
-<br>
-
 Depois de extrair o ficheiro podemos remover o unzip
 
 <br>
@@ -79,8 +76,9 @@ Depois de extrair o ficheiro podemos remover o unzip
 ```
 apt purge unzip
 ```
+<br>
 
-## Criar uma DB para o EspoCRM
+### Criar uma DB para o EspoCRM
 
 <br>
 
@@ -104,33 +102,21 @@ quit;
 
 <br>
 
-## Configurar o Apache2 para o EspoCRM
-
-<br>
+### Configurar o Apache2 para o EspoCRM
 
 Vamos ter que ativar o mod_rewrite para o apache2
-
-<br>
 
 ```
 sudo a2enmod rewrite
 ```
 
-<br>
-
 Depois vamos ao ficheiro de config do apache2
-
-<br>
 
 ```
 nano /etc/apache2/apache2.conf
 ```
 
-<br>
-
 E vamos adicionar a seguinte config:
-
-<br>
 
 ```
 DocumentRoot /var/www/html/espocrm/public
@@ -141,32 +127,15 @@ Alias /client/ /var/www/html/espocrm/client
 </Directory>
 ```
 
-<br>
-
 Depois vamos dar restart ao apache2
 
-<br>
-
 ```
 sudo systemctl restart apache2
 ```
 
 <br>
 
-> Caso exista o seguinte erro: "Permission denied for "data" ..." vamos inserir os comandos a baixo, caso nao apareca podemos continuar
-{.is-danger}
-
-<br>
-
-```
-cd /var/www/html/espocrm
-sudo find data -type d -exec sudo chmod 775 {} + && sudo chown -R 33:33 .;
-sudo systemctl restart apache2
-```
-
-<br>
-
-## Aceder ao Espocrm web install
+### Aceder ao Espocrm web install
 
 <br>
 
@@ -178,7 +147,27 @@ Agora que o espocrm ja esta corretamente instalado no servidor, podemos aceder a
 
 <br>
 
-# Conclusao
+## Troubleshooting
+
+<br>
+
+### Erro de Permissoes
+
+<br>
+
+> Caso exista o seguinte erro: "Permission denied for "data" ..." vamos inserir os comandos a baixo, caso nao apareca podemos continuar
+{.is-danger}
+
+
+```
+cd /var/www/html/espocrm
+sudo find data -type d -exec sudo chmod 775 {} + && sudo chown -R 33:33 .;
+sudo systemctl restart apache2
+```
+
+<br>
+
+## Conclusao
 
 <br>
 
